@@ -1,0 +1,977 @@
+#1->Descriptiopn: Given an array nums with n objects colored red, white, or blue, sort them in-place so that objects of the same color are adjacent, with the colors in the order red, white, and blue.
+
+We will use the integers 0, 1, and 2 to represent the color red, white, and blue, respectively.
+
+**Bruteforce Approach bubble sort**
+class Solution {
+public:
+    void sortColors(vector<int>& nums) {
+        for(int i = 0; i < nums.size(); i++){
+            for(int j = i + 0; j < nums.size(); j++){
+                if(nums[i] > nums[j]){
+                    swap(nums[i], nums[j]);
+                }
+            }
+        }
+    }
+};
+**Dutch Flag Alogrithm Approach**
+The idea is to sweep all 0s to the left and all 2s to the right, then all 1s are left in the middle.
+
+class Solution {
+public:
+    void sortColors(vector<int>& nums) {
+        int low = 0, mid = 0;
+        int high = nums.size()-1;
+        
+        while(mid <= high){
+            if(nums[mid] == 0){
+                swap(nums[low], nums[mid]);
+                low++;
+                mid++;
+            }else if(nums[mid] == 1){
+                mid++;
+            }else if(nums[mid] == 2){
+                swap(nums[high], nums[mid]);
+                high--;
+            }
+            // for(auto a : nums)cout<<a<<" ";
+        }
+    }
+};
+
+#2-> Description: Given an unsorted array Arr of size N of positive integers. One number 'A' from set {1, 2, …N} is missing and one number 'B' occurs twice in array. Find these two numbers.
+
+**Hashing Approach**
+void solution(int arr[], int n){
+    int res[2];
+    int hash[n+1];
+    memset(hash, 0, sizeof(hash));
+
+    for(int i = 0; i < n; i++){
+        hash[arr[i]]++;
+    }
+    for(int i = 1; i <= n; i++){
+        if(hash[i] > 1)cout<<i<<" ";
+        if(hash[i] == 0)cout<<i<<endl;
+    }
+}
+
+**Summation Approach**
+void solution(int arr[], int n){
+    int x=0, xx=0, y, yy, xplusy, xminusy, xxminusyy, twox, twoy;
+    
+    for(int i = 0; i < n; i++){
+        xx = xx + arr[i] * arr[i];
+        x = x + arr[i];
+    }
+    yy = ((n*(n + 1)*(2 * n + 1))/6);
+    y = ((1 + n) * n)/2;
+    xminusy = x - y;
+    xxminusyy = xx - yy;
+    xplusy = xxminusyy / xminusy;
+    twox = xplusy + xminusy;
+    twoy = xplusy - xminusy;
+
+    int i = 0;
+    for(i = 0; i < n; i++){
+        if(twox/2 == arr[i]){
+            cout<<"Repeating number: "<<arr[i]<<" ";
+            cout<<"Missing Number: "<<twoy/2<<endl;
+            break;
+        }
+    }
+    if(i==n){
+        cout<<"Missing Number: "<<twox/2<<endl;
+        cout<<"Repeating Number: "<<twoy/2<<endl;
+    }
+}
+**Xor Approach**
+void solution(int arr[], int n){
+    int x = arr[0];
+    for(int i = 1; i < n; i++){
+        x = x ^ arr[i];
+    }
+    for(int i = 1; i <=n; i++){
+        x = x ^ i;
+    }
+    int setBit;
+    int nn = 0;
+    while(x >= 1<<nn){
+        if(x & 1<<nn){
+            setBit = nn;
+        }
+        nn++;
+    }
+    vector<int> buck1, buck2;
+    for(int i = 0; i < n; i++){
+        if(arr[i] & 1<<setBit)buck1.push_back(arr[i]);
+        else buck2.push_back(arr[i]);
+    }
+    for(int i = 1; i <= n; i++){
+        if(i & 1<<setBit)buck1.push_back(i);
+        else buck2.push_back(i);
+    }
+    int res1 = 0, res2 = 0;
+    for(int i = 0; i < buck1.size(); i++){
+        res1 = res1 ^ buck1[i];
+    }
+    for(int i = 0; i < buck2.size(); i++){
+        res2 = res2 ^ buck2[i];
+    }
+    cout<<res1<<" "<<res2<<endl;
+}
+
+#3-> Description:"Merge two sorted aray", Given two sorted integer arrays nums1 and nums2, merge nums2 into nums1 as one sorted array.
+
+The number of elements initialized in nums1 and nums2 are m and n respectively. You may assume that nums1 has a size equal to m + n such that it has enough space to hold additional elements from nums2.
+
+**Bruteforce/Insertion method**
+
+void solution (int ar1[], int ar2[], int m, int n){
+    int mini = ar2[0];
+    int pos = 0;
+    for(int i = 0; i < m; i++){
+        if(ar1[i] > mini){
+            swap(ar1[i], ar2[pos]);
+            for(int j = 0; j < n; j++){
+                if(ar2[j] < mini){
+                    mini = ar2[j];
+                    pos = j;
+                }
+            }
+        }
+    }
+    sort(ar2, ar2 + n);
+    for(int i = 0; i < m; i++)cout<<ar1[i]<<" ";
+    cout<<endl;
+    for(int i = 0; i < n; i++)cout<<ar2[i]<<" ";
+    cout<<endl;
+}
+
+**Gap method**
+int Nextgap(int gap){
+	if(gap <= 1)return 0;
+	return (gap / 2) + gap % 2;
+}
+void merge(long long arr1[], long long arr2[], int n, int m) 
+{ 
+    int gap = m + n;
+    int i, j;
+    gap = Nextgap(gap);
+    while(gap){
+        for(i = 0; i + gap < n; i++){
+            if(arr1[i] > arr1[i + gap])swap(arr1[i], arr1[i + gap]);
+        }
+        for(j = gap > n ? gap - n : 0; i < n && j < m; i++, j++){
+            if(arr1[i] > arr2[j])swap(arr1[i], arr2[j]);
+        }
+        if(j < m){
+            for(j = 0; j + gap < m; j++){
+                if(arr2[j] > arr2[j + gap])swap(arr2[j], arr2[j + gap]);
+            }
+        }
+        gap = Nextgap(gap);
+    }
+} 
+
+#4-> Khadan's Algorithm
+
+void solution(int arr[], int n){
+    int currMax = arr[0];
+    int resMax = arr[0];
+
+    for(int i = 1; i < n; i++){
+        currMax = max(currMax + arr[i], arr[i]);
+        resMax = max(currMax, resMax);
+    }
+    cout<<resMax<<endl;
+}
+
+#5-> Given an array of intervals where intervals[i] = [starti, endi], merge all overlapping intervals, and return an array of the non-overlapping intervals that cover all the intervals in the input.
+
+**nLogn + n time **
+class Solution {
+public:
+    vector<vector<int>> merge(vector<vector<int>>& intervals) {
+        sort(intervals.begin(), intervals.end());
+        vector<vector<int>> result;
+        if(intervals.size() == 0) return result;
+        
+        vector<int> temp = intervals[0];
+        for(auto it : intervals){
+            if(it[0] <= temp[1])temp[1] = max(it[1], temp[1]);
+            else{
+                result.push_back(temp);
+                temp = it;
+            }
+        }
+        result.push_back(temp);
+        return result;
+    }
+};
+
+#6-> Given an array of integers nums containing n + 1 integers where each integer is in the range [1, n] inclusive.
+
+There is only one repeated number in nums, return this repeated number.
+
+**Brute-force method**
+class Solution {
+public:
+    int findDuplicate(vector<int>& nums) {
+        for(int i = 0; i < nums.size(); i++)
+            for(int j = i+1; j < nums.size(); j++)
+                if(nums[i] == nums[j]){
+                    return nums[i];
+                }
+        return 0;
+    }
+};
+**Hashing Method**
+class Solution {
+public:
+    int findDuplicate(vector<int>& nums) {
+        int hash[nums.size()+1];
+        memset(hash, 0, sizeof(hash));
+        for(int i = 0; i < nums.size(); i++){
+            hash[nums[i]]++;
+        }
+
+        for(int i = 0; i <= nums.size(); i++){
+            if(hash[i]>1)return i;
+        }
+        return 0;
+    }
+};
+**Tortoise Method**
+class Solution {
+public:
+    int findDuplicate(vector<int>& nums) {
+        int fast = nums[0];
+        int slow = nums[0];
+        while(1){
+            fast = nums[nums[fast]];
+            slow = nums[slow];
+            if(fast == slow)break;
+        }
+        fast = nums[0];
+        
+        while(slow != fast){
+            fast = nums[fast];
+            slow = nums[slow];
+        }
+        return slow;
+    }
+};
+
+#7-> Description: 
+Given an m x n matrix. If an element is 0, set its entire row and column to 0. Do it in-place.
+
+Follow up:
+
+A straight forward solution using O(mn) space is probably a bad idea.
+A simple improvement uses O(m + n) space, but still not the best solution.
+Could you devise a constant space solution?
+**Brute-force method "here matrix numbers are not to be -1"**
+class Solution {
+public:
+    void setZeroes(vector<vector<int>>& matrix) {
+        for(int i = 0; i < matrix.size(); i+=1){
+            for(int j = 0; j < matrix[i].size(); j++){
+                if(matrix[i][j] == 0){
+                    for(int k = 0; k < matrix[i].size(); k++){
+                        if(matrix[i][k])matrix[i][k] = -1;
+                    }
+                    for(int k = 0; k < matrix.size(); k++){
+                        if(matrix[k][j])matrix[k][j] = -1;
+                    }
+                }
+            }
+        }
+        for(int i = 0; i < matrix.size(); i++){
+            for(int j = 0; j < matrix[i].size(); j++){
+                if(matrix[i][j] == -1)matrix[i][j] = 0;
+            }
+        }
+    }
+};
+**N+M space N*M time approach**
+class Solution {
+public:
+    void setZeroes(vector<vector<int>>& matrix) {
+        
+        vector<int> row(matrix.size(), -1);
+        vector<int> col(matrix[0].size(), -1);
+        
+        for(int i = 0; i < matrix.size(); i+=1){
+            for(int j = 0; j < matrix[i].size(); j++){
+                if(matrix[i][j] == 0){
+                    row[i] = 0;
+                    col[j] = 0;
+                }
+            }
+        }
+        
+        for(int i = 0; i < row.size(); i++){
+            if(row[i] == 0)
+                for(int j = 0; j < matrix[0].size(); j++){
+                    matrix[i][j] = 0;
+                }
+        }
+        
+        for(int i = 0; i < col.size(); i++){
+            if(col[i] == 0){
+                for(int j = 0; j < matrix.size(); j++){
+                    matrix[j][i] = 0;
+                }
+            }
+        }
+    }
+};
+** No extra space **
+class Solution {
+public:
+    void setZeroes(vector<vector<int>>& matrix) {
+        
+        bool col = true;
+        for(int i = 0; i < matrix.size(); i++){
+            if(matrix[i][0] == 0) col = false;
+            for(int j = 1; j < matrix[0].size(); j++){
+                if(matrix[i][j] == 0){
+                    matrix[i][0] = 0;
+                    matrix[0][j] = 0;
+                }
+            }
+        }
+        for(int i = matrix.size()-1; i>=0; i--){
+            for(int j = matrix[0].size()-1; j>=1; j--){
+                if(matrix[0][j]==0 || matrix[i][0]==0)matrix[i][j] = 0;
+            }if(col == false)matrix[i][0] = 0;
+        }
+        
+    }
+};
+
+#8-> Description: Given an integer numRows, return the first numRows of Pascal's triangle.
+
+In Pascal's triangle, each number is the sum of the two numbers directly above it as shown:
+
+**Solution**
+class Solution {
+public:
+    vector<vector<int>> generate(int numRows) {
+        vector<vector<int>> mat(numRows);
+        for(int i = 0; i < numRows; i++){
+            mat[i].resize(i+1);
+            mat[i][0]=1;
+            mat[i][i]=1;
+            for(int j = 1; j < i; j++){
+                mat[i][j] = mat[i-1][j-1] + mat[i-1][j];
+            }
+        }
+        return mat;
+    }
+};
+
+nth poder series: for(int i = 0; i < k; i++){ res *= (n-1); res /= (i+1) }
+
+#9-> Description: Implement next permutation, which rearranges numbers into the lexicographically next greater permutation of numbers.
+
+If such an arrangement is not possible, it must rearrange it as the lowest possible order (i.e., sorted in ascending order).
+
+The replacement must be in place and use only constant extra memory.
+
+**N time and 1 space**
+
+class Solution {
+public:
+    void nextPermutation(vector<int>& nums) {
+        int breakPoint=-1;
+        for(int i = nums.size()-1; i-1>=0; i--){
+            if(nums[i]>nums[i-1]){
+                breakPoint = i-1;
+                break;
+            }
+        }
+        if(breakPoint != -1)
+            for(int i = nums.size()-1; i>breakPoint; i--){
+                if(nums[i]>nums[breakPoint]){
+                    swap(nums[i], nums[breakPoint]);
+                    break;
+                }
+            }
+        
+        int i = breakPoint == -1 ? 0 : breakPoint + 1;
+        int j = nums.size() - 1;
+        
+        while(i <= j){
+            swap(nums[i], nums[j]);
+            i++; j--;
+        }
+    }
+};
+#10-> Descripttion: Given an array nums of size n, return the majority element.
+
+The majority element is the element that appears more than ⌊n / 2⌋ times. You may assume that the majority element always exists in the array.
+** Brute-force surely get tle**
+class Solution {
+public:
+    int majorityElement(vector<int>& nums) {
+        int cnt = 0, maxi = INT_MIN, ele = nums[0];
+        for(int i = 0; i < nums.size(); i++){
+            for(int j = i + 0; j < nums.size(); j++){
+                if(nums[i] == nums[j])cnt++;
+            }
+            if(maxi < cnt){
+                ele = nums[i];
+                maxi = cnt;
+            }
+            cnt = 0;
+        }
+        return ele;
+    }
+};
+**Moore's voting algorithm**
+class Solution {
+public:
+    int majorityElement(vector<int>& nums) {
+        int cnt = 0, ele = nums[0];
+        for(int i = 0; i < nums.size(); i++){
+            if(cnt == 0)ele = nums[i];
+            
+            if(ele == nums[i])cnt++;
+            else cnt--;
+        }
+        return ele;
+    }
+};
+#11-> Description: Given an integer array of size n, find all elements that appear more than ⌊ n/3 ⌋ times.
+
+Follow-up: Could you solve the problem in linear time and in O(1) space?
+**Boy Moore's voitng algorithm**
+class Solution {
+public:
+    vector<int> majorityElement(vector<int>& nums) {
+        int cnt1 = 0, cnt2 = 0, ele1=-1, ele2=-1;
+        for(int i = 0; i < nums.size(); i++){
+            if(ele1 == nums[i]) cnt1++;
+            else if(ele2 == nums[i]) cnt2++;
+            else if(cnt1 == 0) {ele1 = nums[i]; cnt1 = 1;}
+            else if(cnt2 == 0) {ele2 = nums[i]; cnt2 = 1;}
+            else {
+                cnt1--;
+                cnt2--;
+            }
+        }
+        vector<int> v;
+        cnt1 = 0, cnt2 = 0;
+        for(int i = 0; i < nums.size(); i++){
+            if(nums[i] == ele1)cnt1++;
+            else if(nums[i] == ele2)cnt2++;
+        }
+        if(cnt1 > nums.size()/3)v.push_back(ele1);
+        if(cnt2 > nums.size()/3)v.push_back(ele2);
+        return v;
+    }
+};
+#12-> Description: Implement next permutation, which rearranges numbers into the lexicographically next greater permutation of numbers.
+
+If such an arrangement is not possible, it must rearrange it as the lowest possible order (i.e., sorted in ascending order).
+
+The replacement must be in place and use only constant extra memory.
+**Great technique**
+step 1: find first arr[i-1] < arr[i]
+step 2: swap them
+step 3: reverse the after part of the array
+
+class Solution {
+public:
+    void nextPermutation(vector<int>& nums) {
+        int breakPoint=-1;
+        for(int i = nums.size()-1; i-1>=0; i--){
+            if(nums[i]>nums[i-1]){
+                breakPoint = i-1;
+                break;
+            }
+        }
+        if(breakPoint != -1)
+            for(int i = nums.size()-1; i>breakPoint; i--){
+                if(nums[i]>nums[breakPoint]){
+                    swap(nums[i], nums[breakPoint]);
+                    break;
+                }
+            }
+        
+        int i = breakPoint == -1 ? 0 : breakPoint + 1;
+        int j = nums.size() - 1;
+        
+        while(i <= j){
+            swap(nums[i], nums[j]);
+            i++; j--;
+        }
+    }
+};
+
+#13-> Description: Given an array of integers. Find the Inversion Count in the array. 
+
+Inversion Count: For an array, inversion count indicates how far (or close) the array is from being sorted. If array is already sorted then the inversion count is 0. If an array is sorted in the reverse order then the inversion count is the maximum. 
+Formally, two elements a[i] and a[j] form an inversion if a[i] > a[j] and i < j.
+**NLogN time and N space mergeSort Technique**
+// { Driver Code Starts
+#include <bits/stdc++.h>
+using namespace std;
+
+
+ // } Driver Code Ends
+class Solution{
+  public:
+    // arr[]: Input Array
+    // N : Size of the Array arr[]
+    // Function to count inversions in the array.
+    long long merge(long long arr[], long long temp[], long long low, long long mid, long long high){
+        long long i = low;
+        long long j = mid;
+        long long k = low;
+        long long invCnt = 0;
+        while((i <= mid - 1) && (j <= high)){
+            if(arr[i] <= arr[j]){
+                temp[k++] = arr[i++];
+            }else{
+                temp[k++] = arr[j++];
+                
+                invCnt += mid - i;
+            }
+        }
+        while(i <= mid - 1){
+            temp[k++] = arr[i++];
+        }
+        while(j <= high){
+            temp[k++] = arr[j++];
+        }
+        for(long long i = low; i <= high; i++){
+            arr[i] = temp[i];
+        }
+        return invCnt;
+    }
+    long long mergeSort(long long arr[], long long temp[], long long low, long long high){
+        long long invCnt = 0;
+        if(low < high){
+            long long mid = low + (high - low)/2;
+            invCnt += mergeSort(arr, temp, low, mid);
+            invCnt += mergeSort(arr, temp, mid + 1, high);
+            invCnt += merge(arr, temp, low, mid + 1, high);
+        }
+        return invCnt;
+    }
+    long long inversionCount(long long arr[], long long N)
+    {
+        // Your Code Here
+        long long low = 0;
+        long long high = N - 1;
+        long long temp[N];
+        long long invCnt = mergeSort(arr, temp, low, high);
+        return invCnt;
+    }
+
+};
+
+// { Driver Code Starts.
+
+int main() {
+    
+    long long T;
+    cin >> T;
+    
+    while(T--){
+        long long N;
+        cin >> N;
+        
+        long long A[N];
+        for(long long i = 0;i<N;i++){
+            cin >> A[i];
+        }
+        Solution obj;
+        cout << obj.inversionCount(A,N) << endl;
+    }
+    
+    return 0;
+}
+  // } Driver Code Ends
+  
+#14-> Description: You are given an array prices where prices[i] is the price of a given stock on the ith day.
+
+You want to maximize your profit by choosing a single day to buy one stock and choosing a different day in the future to sell that stock.
+
+Return the maximum profit you can achieve from this transaction. If you cannot achieve any profit, return 0.
+**N time 1 space**
+class Solution {
+public:
+    int maxProfit(vector<int>& prices) {
+        int lowPrice = prices[0];
+        int maxPro = 0;
+        
+        for(int i = 0; i < prices.size(); i++){
+            if(lowPrice > prices[i])lowPrice = prices[i];
+            maxPro = max(maxPro, prices[i] - lowPrice);
+        }
+        return maxPro;
+    }
+};
+
+#15-> Description: You are given an n x n 2D matrix representing an image, rotate the image by 90 degrees (clockwise).
+
+You have to rotate the image in-place, which means you have to modify the input 2D matrix directly. DO NOT allocate another 2D matrix and do the rotation.
+**transpose than reverse approach**
+class Solution {
+public:
+    void rotate(vector<vector<int>>& matrix) {
+        int n = matrix.size();
+        for(int i = 0; i < n; i++){
+            for(int j = 0; j < i; j++){
+                swap(matrix[i][j], matrix[j][i]);
+            }
+        }
+        for(int i = 0; i < n; i++){
+            reverse(matrix[i].begin(), matrix[i].end());
+        }
+    }
+};
+#16-> Description: Write an efficient algorithm that searches for a value in an m x n matrix. This matrix has the following properties:
+
+Integers in each row are sorted from left to right.
+The first integer of each row is greater than the last integer of the previous row.
+**N*M time and 1 space**
+class Solution {
+public:
+    bool searchMatrix(vector<vector<int>>& matrix, int target) {
+        for(int i = 0; i < matrix.size(); i++){
+            for(int j = 0; j < matrix[0].size(); j++){
+                if(matrix[i][j] == target)return true;
+            }
+        }
+        return false;
+    }
+};
+**Using sorted rows and sorted columns N + M time**
+class Solution {
+public:
+    bool searchMatrix(vector<vector<int>>& matrix, int target) {
+        int row = 0;
+        int col = matrix[0].size()-1;
+        while(row < matrix.size() && col>=0){
+            if(matrix[row][col]==target)return true;
+            else if(matrix[row][col] > target) col--;
+            else if(matrix[row][col] < target) row++;
+        }
+        return false;
+    }
+};
+**Binary Search implenting**
+class Solution {
+public:
+    bool searchMatrix(vector<vector<int>>& matrix, int target) {
+        int low = 0;
+        int high = matrix.size() * matrix[0].size() - 1;
+        while(low <= high){
+            int mid = low + (high - low)/2;
+            int row = mid / matrix[0].size();
+            int col = mid % (matrix[0].size());
+            
+            if(matrix[row][col] == target)return true;
+            else if(matrix[row][col] > target)high = mid - 1;
+            else low = mid + 1;
+        }
+        return false;
+    }
+};
+
+#18-> Description: Implement pow(x, n), which calculates x raised to the power n (i.e. xn).
+**BigMod approach**
+class Solution {
+public:
+    double bigMod(double x, long long n){
+        double res = 1;
+        while(n){
+            if(n % 2 == 1){
+                res = res * x;
+                n--;
+            }
+            x = x * x;
+            n = n / 2;
+        }
+        return res;
+    }
+    double myPow(double x, int n) {
+        bool neg = false;
+        if(n < 0) neg = true;
+        long long N = abs(n);
+        
+        double res = bigMod(x, N);
+        if(neg)return 1/res;
+        return res;
+    }
+};
+#19-> Description: Given an array nums of n integers, are there elements a, b, c in nums such that a + b + c = 0? Find all unique triplets in the array which gives the sum of zero.
+
+Notice that the solution set must not contain duplicate triplets.
+**Very Tricky two pointers solution with n^2 time and m space**
+class Solution {
+public:
+    vector<vector<int>> threeSum(vector<int>& nums) {
+        vector<vector<int>> res;
+        if(nums.size() < 3)return res;
+        sort(nums.begin(), nums.end());
+        for(int i = 0; i < nums.size()-2; i++){
+            if(i == 0 || (i > 0 && (nums[i] != nums[i-1]))){
+                int sum = 0 - nums[i];
+                int low = i + 1;
+                int high = nums.size()-1;
+                while(low < high){
+                    if((nums[low] + nums[high]) == sum){
+                        vector<int> temp;
+                        temp.push_back(nums[i]);
+                        temp.push_back(nums[low]);
+                        temp.push_back(nums[high]);
+                        res.push_back(temp);
+                        while(low < high && nums[low] == nums[low+1])low++;
+                        
+                        while(low < high && nums[high] == nums[high-1])high--;
+                        
+                        low++;
+                        high--;
+                    }else if((nums[low] + nums[high]) > sum)high--;
+                    else low++;
+                }
+            }
+        }
+        return res;
+    }
+};
+#20-> Description: 
+Given an array nums of n integers and an integer target, are there elements a, b, c, and d in nums such that a + b + c + d = target? Find all unique quadruplets in the array which gives the sum of target.
+
+Notice that the solution set must not contain duplicate quadruplets.
+**three pointers + binary search**
+**n^3 time 1 space**
+class Solution {
+public:
+    vector<vector<int>> fourSum(vector<int>& nums, int target) {
+        vector<vector<int>> res;
+        sort(nums.begin(), nums.end());
+        if(nums.size() < 4)return res;
+        
+        for(int i = 0; i < nums.size()-3; i++){
+            if(i == 0 || (i > 0 && nums[i] != nums[i-1])){
+                for(int j = i + 1; j < nums.size()-2; j++){
+                    if(j == i + 1 || (j > i + 1 && nums[j] != nums[j-1])){
+                        int low = j + 1;
+                        int high = nums.size()-1;
+                        int sum = target-(nums[i] + nums[j]);
+                        while(low < high){
+                            if(nums[low] + nums[high] == sum){
+                                vector<int> temp;
+                                temp.push_back(nums[i]);
+                                temp.push_back(nums[j]);
+                                temp.push_back(nums[low]);
+                                temp.push_back(nums[high]);
+                                res.push_back(temp);
+                                while(low < high && nums[low]==nums[low+1])low++;
+                                while(low < high && nums[high]==nums[high-1])high--;
+                                low++;
+                                high--;
+                            }else if(nums[low] + nums[high] > sum)high--;
+                            else low++;
+                        }
+                    }
+                }
+            }
+        }
+        return res;
+    }
+};
+#21-> Description: Given an unsorted array of integers nums, return the length of the longest consecutive elements sequence.
+**N time and N space set stl**
+class Solution {
+public:
+    int longestConsecutive(vector<int>& nums) {
+        set<int> hashSet;
+        for(auto num : nums){
+            hashSet.insert(num);
+        }
+        int cnt = 0, maxCnt = 0;
+        for(int i = 0; i < nums.size(); i++){
+            if(!hashSet.count(nums[i]-1)){
+                while(hashSet.count(nums[i]++))cnt++;
+                
+                maxCnt = max(maxCnt, cnt);
+            }
+            cnt = 0;
+        }
+        return maxCnt;
+    }
+};
+#22-> Description: The task is to count all the possible paths from top left to bottom right of a m X n matrix with the constraints that from each cell you can either move only to right or down.
+**Using Recursion BruteForce method exponential time complexity**
+// { Driver Code Starts
+// Initial Template for C++
+#include <bits/stdc++.h>
+using namespace std;
+
+ // } Driver Code Ends
+// User function Template for C++
+class Solution {
+  public:
+    long long int solution(int i, int j, int m, int n){
+        if(i >=m || j >= n)return 0;
+        else if(i == m-1 && j == n-1)return 1;
+        else return solution(i+1, j, m, n) + solution(i, j+1, m, n);
+    }
+    long long int numberOfPaths(int m, int n){
+        // code here
+        int i = 0, j = 0;
+        return solution(i, j, m, n);
+    }
+};
+
+// { Driver Code Starts.
+int main() {
+    int t;
+    cin >> t;
+    while (t--) {
+        int n, m;
+        cin >> m >> n;
+        Solution ob;
+        cout<<ob.numberOfPaths(m,n)<<endl;
+    }
+    return 0;
+}
+  // } Driver Code Ends
+
+**Recursion to DP with M*N time space M*N**
+// { Driver Code Starts
+// Initial Template for C++
+#include <bits/stdc++.h>
+using namespace std;
+
+ // } Driver Code Ends
+// User function Template for C++
+class Solution {
+  public:
+    long long int solution(int i, int j, int m, int n, vector<vector<long long int>> &dp, int &mod){
+        if(i >=m || j >= n)return 0;
+        else if(i == m-1 && j == n-1)return 1;
+        
+        if(dp[i][j] != -1)return dp[i][j];
+        else return dp[i][j] = (solution(i+1, j, m, n, dp, mod) % mod + solution(i, j+1, m, n, dp, mod) % mod)%mod;
+    }
+    long long int numberOfPaths(int m, int n){
+        // code here
+        int mod = 1e9 + 7;
+        int i = 0, j = 0;
+        vector<vector<long long int>> dp(m);
+        for(int i = 0; i < m; i++){
+            dp[i].resize(n);
+            for(int j = 0; j < n; j++){
+                dp[i][j] = -1;
+            }
+        }
+        return solution(i, j, m, n, dp, mod);
+    }
+};
+// { Driver Code Starts.
+int main() {
+    int t;
+    cin >> t;
+    while (t--) {
+        int n, m;
+        cin >> m >> n;
+        Solution ob;
+        cout<<ob.numberOfPaths(m,n)<<endl;
+    }
+    return 0;
+}
+  // } Driver Code Ends
+ 
+** N time with 1 space combination approach**
+class Solution {
+public:
+    int uniquePaths(int m, int n) {
+        int all = m + n - 2;
+        m = m - 1;
+        long long res = 1;
+        for(int i = 1; i <= m; i++){
+            res = res * (all - m + i) / i;
+        }
+        return res;
+    }
+};
+#23-> Description: Given an array having both positive and negative integers. The task is to compute the length of the largest subarray with sum 0.
+**prefix sum approach**
+// { Driver Code Starts
+#include <bits/stdc++.h>
+using namespace std;
+
+int maxLen(int A[], int n);
+
+int main()
+{
+    int T;
+    cin >> T;
+    while (T--)
+    {
+        int N;
+        cin >> N;
+        int A[N];
+        for (int i = 0; i < N; i++)
+            cin >> A[i];
+        cout << maxLen(A, N) << endl;
+    }
+}
+// } Driver Code Ends
+
+
+/*You are required to complete this function*/
+
+int maxLen(int arr[], int n)
+{
+    // Your code here
+    int sum = 0;
+    int maxi = 0;
+    map<int, int> mp;
+    for(int i = 0; i < n; i++){
+        sum = sum + arr[i];
+        if(sum == 0){
+            maxi = max(maxi, i+1);
+        }
+        
+        if(mp.find(sum) != mp.end()){
+            maxi = max(maxi, i - mp[sum]);
+        }else mp[sum] = i;
+    }
+    return maxi;
+}
+#24-> Description: Given a string s, find the length of the longest substring without repeating characters.
+**2N time wiht Set stl**
+class Solution {
+public:
+    int lengthOfLongestSubstring(string s) {
+        if(s.size() == 0)return 0;
+        set<char> hashSet;
+        int left = 0, right = 0;
+        int maxi = 1;
+        while(right < s.size()){
+            if(!hashSet.count(s[right])){
+                maxi = max(right - left + 1, maxi);
+                hashSet.insert(s[right]);
+                right++;
+            }
+            else{
+                while(hashSet.count(s[right]) && left < right){
+                    hashSet.erase(s[left]);
+                    left++;
+                }
+            }
+        }
+        return maxi;
+    }
+};
