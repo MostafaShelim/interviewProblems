@@ -975,3 +975,191 @@ public:
         return maxi;
     }
 };
+**N time and N space**
+class Solution {
+public:
+    int lengthOfLongestSubstring(string s) {
+        vector<int> map(256, -1);
+        int left = 0;
+        int right = 0;
+        int len = 0;
+        while(right < s.size()){
+            if(map[s[right]] != -1)left = max(map[s[right]] + 1, left);
+            map[s[right]] = right;
+            len = max(right - left + 1, len);
+            right++;
+        }
+        return len;
+    }
+};
+
+#25-> Description: Given the head of a singly linked list, reverse the list, and return the reversed list.
+/**
+ * Definition for singly-linked list.
+ * struct ListNode {
+ *     int val;
+ *     ListNode *next;
+ *     ListNode() : val(0), next(nullptr) {}
+ *     ListNode(int x) : val(x), next(nullptr) {}
+ *     ListNode(int x, ListNode *next) : val(x), next(next) {}
+ * };
+ */
+class Solution {
+public:
+    ListNode* reverseList(ListNode* head) {
+        ListNode *newHead = NULL;
+        while(head){
+            ListNode *next = head->next;
+            head->next = newHead;
+            newHead = head;
+            head = next;
+        }
+        return newHead;
+    }
+}
+#26->Description: Given a non-empty, singly linked list with head node head, return a middle node of linked list.
+If there are two middle nodes, return the second middle node.
+/**
+ * Definition for singly-linked list.
+ * struct ListNode {
+ *     int val;
+ *     ListNode *next;
+ *     ListNode() : val(0), next(nullptr) {}
+ *     ListNode(int x) : val(x), next(nullptr) {}
+ *     ListNode(int x, ListNode *next) : val(x), next(next) {}
+ * };
+ */
+class Solution {
+public:
+    ListNode* middleNode(ListNode* head) {
+        ListNode *dhead = head;
+        int cnt = 0;
+        while(dhead){
+            dhead = dhead->next;
+            cnt++;
+        }
+        int len = cnt/2;
+        while(len){
+            head = head->next;
+            len--;
+        }
+        return head;
+    }
+};
+#27-> Description: Given a non-empty, singly linked list with head node head, return a middle node of linked list.
+If there are two middle nodes, return the second middle node.
+/**
+ * Definition for singly-linked list.
+ * struct ListNode {
+ *     int val;
+ *     ListNode *next;
+ *     ListNode() : val(0), next(nullptr) {}
+ *     ListNode(int x) : val(x), next(nullptr) {}
+ *     ListNode(int x, ListNode *next) : val(x), next(next) {}
+ * };
+ */
+class Solution {
+public:
+    ListNode* middleNode(ListNode* head) {
+        ListNode* slow = head;
+        ListNode* fast = head;
+        
+        while(fast->next && fast->next->next){
+            slow = slow->next;
+            fast = fast->next->next;
+        }
+        if(fast->next != NULL)slow = slow->next;
+        return slow;
+    }
+};
+#28-> Description: Write a function to delete a node in a singly-linked list. You will not be given access to the head of the list, instead you will be given access to the node to be deleted directly.
+It is guaranteed that the node to be deleted is not a tail node in the list.
+/**
+ * Definition for singly-linked list.
+ * struct ListNode {
+ *     int val;
+ *     ListNode *next;
+ *     ListNode(int x) : val(x), next(NULL) {}
+ * };
+ */
+class Solution {
+public:
+    void deleteNode(ListNode* node) {
+        node->val = node->next->val;
+        node->next = node->next->next;
+    }
+};
+#29-> Description: Given the head of a linked list, remove the nth node from the end of the list and return its head.
+Follow up: Could you do this in one pass?
+**Fency Solution**
+/**
+ * Definition for singly-linked list.
+ * struct ListNode {
+ *     int val;
+ *     ListNode *next;
+ *     ListNode() : val(0), next(nullptr) {}
+ *     ListNode(int x) : val(x), next(nullptr) {}
+ *     ListNode(int x, ListNode *next) : val(x), next(next) {}
+ * };
+ */
+class Solution {
+public:
+    ListNode* removeNthFromEnd(ListNode* head, int n) {
+        int cnt = 0;
+        ListNode *d = head;
+        while(d){
+            cnt++;
+            d = d->next;
+        }
+        if(cnt == n){
+            return head->next;
+        }
+        int len = cnt - n -1;
+        ListNode* dummy = head;
+        while(len && dummy){
+            dummy = dummy->next;
+            len--;
+        }
+        dummy->next = dummy->next->next;
+        return head;
+    }
+};
+**Better solution**
+/**
+ * Definition for singly-linked list.
+ * struct ListNode {
+ *     int val;
+ *     ListNode *next;
+ *     ListNode() : val(0), next(nullptr) {}
+ *     ListNode(int x) : val(x), next(nullptr) {}
+ *     ListNode(int x, ListNode *next) : val(x), next(next) {}
+ * };
+ */
+class Solution {
+public:
+    ListNode* removeNthFromEnd(ListNode* head, int n) {
+        int cnt = 0;
+        ListNode *d = head;
+        while(d){
+            cnt++;
+            d = d->next;
+        }
+        if(cnt == n){
+            return head->next;
+        }
+        ListNode *slow = head;
+        ListNode *fast = head;
+        n++;
+        while(n){
+            fast = fast->next;
+            n--;
+        }
+        while(fast){
+            slow = slow->next;
+            fast = fast->next;
+        }
+        slow->next = slow->next->next;
+        return head;
+    }
+};
+
